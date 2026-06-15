@@ -1,65 +1,175 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import EventTypeCards from "@/components/EventTypeCards";
+import Configurator from "@/components/Configurator";
+import ContactForm from "@/components/ContactForm";
+import Gallery from "@/components/Gallery";
+import Speisekarte from "@/components/Speisekarte";
+import Footer from "@/components/Footer";
+import { EVENT_TYPES, EMPTY_SELECTION } from "@/lib/catering-data";
+import type {
+  CategoryId,
+  ConfiguratorSelection,
+  EventTypeId,
+} from "@/types/catering";
 
 export default function Home() {
+  /*
+    Lifted State: Der gewählte Event-Typ und die Konfigurator-Auswahl leben
+    hier in der page.tsx und werden an Konfigurator, Formular und
+    WhatsApp-Button durchgereicht.
+  */
+  const [activeEventId, setActiveEventId] = useState<EventTypeId | null>(null);
+  const [selection, setSelection] =
+    useState<ConfiguratorSelection>(EMPTY_SELECTION);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  // Aktives Event-Objekt aus der ID ableiten (stabile Referenz via useMemo).
+  const activeEvent = useMemo(
+    () => EVENT_TYPES.find((e) => e.id === activeEventId) ?? null,
+    [activeEventId],
+  );
+
+  // Event-Typ-Karte wählen.
+  const handleSelectEvent = (id: EventTypeId) => {
+    setActiveEventId(id);
+  };
+
+  // Option in einer Kategorie wählen (erneuter Klick hebt die Auswahl auf).
+  const handleSelectOption = (category: CategoryId, option: string) => {
+    setSelection((prev) => ({
+      ...prev,
+      [category]: prev[category] === option ? null : option,
+    }));
+  };
+
+  // Modal schließen per Escape-Taste.
+  useEffect(() => {
+    if (!isFormOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFormOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isFormOpen]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <>
+      <Navbar />
+
+      <main className="flex-1">
+        <Hero />
+
+        {/* Event-Typen + Konfigurator */}
+        <section id="catering" className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <h2 className="font-serif text-3xl font-bold text-brown sm:text-4xl">
+              Welches Event planst du?
+            </h2>
+            <p className="mt-3 text-brown/70">
+              Wähle einen Event-Typ und stelle dir dein Catering im
+              Konfigurator zusammen.
+            </p>
+          </div>
+
+          <EventTypeCards
+            activeEvent={activeEventId}
+            onSelect={handleSelectEvent}
+          />
+
+          {/* Konfigurator erscheint erst nach Auswahl eines Event-Typs */}
+          {activeEvent && (
+            <Configurator
+              activeEvent={activeEvent}
+              selection={selection}
+              onSelect={handleSelectOption}
+              onOpenForm={() => setIsFormOpen(true)}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+          )}
+        </section>
+
+        {/* Einfache Platzhalter-Sektionen – Inhalt folgt später */}
+        <Speisekarte />
+        <Gallery />
+        <PlaceholderSection
+          id="ueber-uns"
+          title="Über uns"
+          text="Die Geschichte hinter Snack – Imbiss & Catering by Hamo: Leidenschaft, Qualität und echtes Handwerk. Text folgt."
+        />
+        <PlaceholderSection
+          id="standorte"
+          title="Standorte"
+          text="Wo du uns findest und in welchen Regionen wir Catering anbieten. Standort-Infos folgen."
+        />
+
+        {/* Kontakt + Formular (inline) */}
+        <section id="kontakt" className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+          <div className="mb-8 text-center">
+            <h2 className="font-serif text-3xl font-bold text-brown sm:text-4xl">
+              Event planen. Angebot erhalten.
+            </h2>
+            <p className="mt-3 text-brown/70">
+              Erzähl uns von deinem Event – wir melden uns mit einem
+              unverbindlichen Angebot.
+            </p>
+          </div>
+          <ContactForm activeEvent={activeEvent} selection={selection} />
+        </section>
       </main>
-    </div>
+
+      <Footer />
+
+      {/* Kontaktformular-Modal (geöffnet aus dem Konfigurator) */}
+      {isFormOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-brown/60 p-4 backdrop-blur-sm sm:p-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Kontaktformular"
+          onClick={() => setIsFormOpen(false)}
+        >
+          <div
+            className="relative my-auto w-full max-w-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Formular schließen"
+              onClick={() => setIsFormOpen(false)}
+              className="absolute -top-2 right-0 z-10 -translate-y-full rounded-full bg-card p-2 text-brown shadow-md transition-colors hover:text-red sm:-right-2"
+            >
+              <X size={22} />
+            </button>
+            <ContactForm activeEvent={activeEvent} selection={selection} />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/** Wiederverwendbare Platzhalter-Sektion (Titel + Text). */
+function PlaceholderSection({
+  id,
+  title,
+  text,
+}: {
+  id: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <section id={id} className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+      <div className="rounded-2xl bg-card p-8 shadow-md shadow-brown/5 ring-1 ring-brown/5 sm:p-12">
+        <h2 className="font-serif text-3xl font-bold text-brown sm:text-4xl">
+          {title}
+        </h2>
+        <p className="mt-4 max-w-2xl text-brown/70">{text}</p>
+      </div>
+    </section>
   );
 }

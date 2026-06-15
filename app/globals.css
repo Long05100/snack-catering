@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  Design-System "Snack – Imbiss & Catering by Hamo"
+  Tailwind v4: Farb-Tokens werden direkt hier per @theme definiert
+  (in v4 ersetzt @theme die klassische tailwind.config.js).
+  Nutzbar als bg-wood, text-brown, bg-red, bg-card usw.
+*/
+@theme {
+  --color-wood: #f5efe6; /* heller Holz-/Creme-Hintergrund */
+  --color-brown: #3b1f1a; /* dunkles Braun – Haupttext & Logo */
+  --color-red: #e0241a; /* Akzent-Rot – Buttons & Highlights */
+  --color-card: #ffffff; /* Karten-Hintergrund */
+
+  /* Schriften – werden in app/layout.tsx via next/font gesetzt */
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/*
+  Body-Hintergrund: dezente Holztextur (Platzhalter unter /public/wood-bg.jpg).
+  Bild bitte später austauschen. Das Overlay (linear-gradient) hellt die
+  Textur auf, damit weiße Karten gut lesbar darauf liegen.
+*/
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-wood);
+  background-image: linear-gradient(
+      rgba(245, 239, 230, 0.82),
+      rgba(245, 239, 230, 0.88)
+    ),
+    url("/wood-bg.jpg");
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  color: var(--color-brown);
+  font-family: var(--font-sans);
+}
+
+/* Sanftes Scrollen für die Anchor-Navigation */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Offset, damit die Sticky-Navbar Sektionen beim Ankern nicht verdeckt */
+section[id] {
+  scroll-margin-top: 5.5rem;
 }
