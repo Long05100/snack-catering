@@ -13,9 +13,7 @@ const GALLERY_IMAGES: { src: string; alt: string }[] = [
   { src: "/galerie/galerie-1.jpg", alt: "Catering-Impression 1" },
   { src: "/galerie/galerie-2.jpg", alt: "Catering-Impression 2" },
   { src: "/galerie/galerie-3.jpg", alt: "Catering-Impression 3" },
-  { src: "/galerie/galerie-4.jpg", alt: "Catering-Impression 4" },
-  { src: "/galerie/galerie-5.jpg", alt: "Catering-Impression 5" },
-  { src: "/galerie/galerie-6.jpg", alt: "Catering-Impression 6" },
+
 ];
 
 /**

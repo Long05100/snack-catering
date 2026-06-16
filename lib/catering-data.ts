@@ -31,7 +31,7 @@ export const EVENT_TYPES: EventType[] = [
     title: "Geburtstage",
     description:
       "Ob klein und gemütlich oder große Sause – wir bringen den Geschmack zur Feier.",
-    image: "/events/event-geburtstage.jpg",
+    image: "/events/event-geburtstage-v3.jpg",
     formValue: "Geburtstag",
   },
   {
@@ -39,7 +39,7 @@ export const EVENT_TYPES: EventType[] = [
     title: "Festivals",
     description:
       "Street-Food-Feeling für große Menschenmengen. Food Truck, Stationen und mehr.",
-    image: "/events/event-festivals.jpg",
+    image: "/events/event-festivals-v3.jpg",
     formValue: "Festival",
   },
 ];

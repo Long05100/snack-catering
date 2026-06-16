@@ -70,7 +70,7 @@ function isValidEmail(email: string): boolean {
 }
 
 /**
- * Kontaktformular mit rein clientseitiger Validierung.
+ * Kontaktformular mit clientseitiger Validierung und Versand per Web3Forms.
  * Wird sowohl inline (#kontakt) als auch im Modal genutzt.
  */
 export default function ContactForm({
@@ -86,6 +86,10 @@ export default function ContactForm({
     {},
   );
   const [success, setSuccess] = useState(false);
+  // Lade-Zustand während des Sendens (verhindert Doppel-Klicks).
+  const [submitting, setSubmitting] = useState(false);
+  // Fehlermeldung, falls der Versand scheitert.
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   /*
     Vorausfüllen synchronisieren: Wenn sich der gewählte Event-Typ oder die
@@ -131,22 +135,59 @@ export default function ContactForm({
   };
 
   /**
-   * Zentrale Submit-Logik. Aktuell rein clientseitig (kein echter Versand).
+   * Zentrale Submit-Logik. Sendet die Anfrage per Web3Forms als E-Mail.
+   * Der Access Key liegt in der Umgebungsvariable NEXT_PUBLIC_WEB3FORMS_KEY
+   * (siehe .env.local) und wird nicht direkt in den Code geschrieben.
    */
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
 
-    // TODO(Backend): Hier später den echten Versand einbauen.
-    // Optionen z. B.:
-    //   - Resend: fetch("/api/contact", { method: "POST", body: JSON.stringify(form) })
-    //   - Supabase: await supabase.from("anfragen").insert(form)
-    // Aktuell: keine Daten verlassen den Browser.
-    console.log("Anfrage (nur clientseitig):", form);
+    setSubmitting(true);
+    setSubmitError(null);
 
-    setSuccess(true);
-    setForm(EMPTY_FORM);
-    setErrors({});
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: process.env.NEXT_PUBLIC_WEB3FORMS_KEY,
+          subject: `Neue Catering-Anfrage von ${form.name}`,
+          from_name: "Snack Catering Website",
+          // Die einzelnen Formularfelder (Schlüssel = Beschriftung in der Mail):
+          Name: form.name,
+          Firma: form.firma,
+          "E-Mail": form.email,
+          Telefon: form.telefon,
+          "Event-Art": form.eventArt,
+          Personenanzahl: form.personen,
+          Datum: form.datum,
+          Ort: form.ort,
+          Nachricht: form.nachricht,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSuccess(true);
+        setForm(EMPTY_FORM);
+        setErrors({});
+      } else {
+        setSubmitError(
+          "Beim Senden ist etwas schiefgelaufen. Bitte versuche es erneut.",
+        );
+      }
+    } catch {
+      setSubmitError(
+        "Verbindung fehlgeschlagen. Bitte prüfe deine Internetverbindung.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Erfolgsmeldung nach dem Absenden.
@@ -371,11 +412,17 @@ export default function ContactForm({
         </div>
       </div>
 
+      {/* Fehlermeldung beim Versand */}
+      {submitError && (
+        <p className="mt-4 text-sm text-red">{submitError}</p>
+      )}
+
       <button
         type="submit"
-        className="mt-7 w-full rounded-full bg-red px-7 py-3.5 text-base font-semibold text-white shadow-md transition-transform hover:scale-[1.02] hover:bg-red/90 sm:w-auto"
+        disabled={submitting}
+        className="mt-7 w-full rounded-full bg-red px-7 py-3.5 text-base font-semibold text-white shadow-md transition-transform hover:scale-[1.02] hover:bg-red/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
       >
-        Anfrage senden
+        {submitting ? "Wird gesendet …" : "Anfrage senden"}
       </button>
     </form>
   );

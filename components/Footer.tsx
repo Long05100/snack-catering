@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
 /**
@@ -25,12 +26,12 @@ export default function Footer() {
             </h5>
             <ul className="mt-3 space-y-2 text-sm text-wood/80">
               <li className="flex items-center gap-2">
-                <Phone size={16} className="text-red" /> +49 123 456789
-                (Platzhalter)
+                <Phone size={16} className="text-red" /> +49 176 61144865
+                
               </li>
               <li className="flex items-center gap-2">
-                <Mail size={16} className="text-red" /> info@example.com
-                (Platzhalter)
+                <Mail size={16} className="text-red" /> snackimbiss@gmail.com
+                
               </li>
             </ul>
           </div>
@@ -41,12 +42,12 @@ export default function Footer() {
             </h5>
             <ul className="mt-3 space-y-2 text-sm text-wood/80">
               <li className="flex items-center gap-2">
-                <MapPin size={16} className="text-red" /> Musterstraße 1, 12345
-                Musterstadt
+                <MapPin size={16} className="text-red" /> Riemenstraße 5, 74906 Bad Rappenau
+                
               </li>
               <li className="flex items-center gap-2">
-                <Clock size={16} className="text-red" /> Mo–Sa, nach
-                Vereinbarung
+                <Clock size={16} className="text-red" /> Mo–Sa, 11:00 - 19:00
+                
               </li>
             </ul>
           </div>
@@ -75,9 +76,23 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-wood/10 pt-6 text-center text-xs text-wood/50">
-          © {new Date().getFullYear()} Snack – Imbiss &amp; Catering by Hamo.
-          Alle Rechte vorbehalten.
+        <div className="mt-10 flex flex-col items-center gap-3 border-t border-wood/10 pt-6 text-xs text-wood/50 sm:flex-row sm:justify-between">
+          {/* Rechtliche Unterseiten – Next.js <Link> für Client-Navigation */}
+          <div className="flex items-center gap-4">
+            <Link href="/impressum" className="transition-colors hover:text-red">
+              Impressum
+            </Link>
+            <Link
+              href="/datenschutz"
+              className="transition-colors hover:text-red"
+            >
+              Datenschutz
+            </Link>
+          </div>
+          <p className="text-center">
+            © {new Date().getFullYear()}&nbsp;Snack – Imbiss &amp; Catering by
+            Hamo. Alle Rechte vorbehalten.
+          </p>
         </div>
       </div>
     </footer>
